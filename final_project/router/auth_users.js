@@ -14,10 +14,27 @@ const authenticatedUser = (username,password)=>{ //returns boolean
 }
 
 //only registered users can login
-regd_users.post("/login", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+regd_users.post("/login", (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ message: "Se requiere nombre de usuario y contraseña" });
+    }
+
+    const user = users[username];
+
+    if (!user || user.password !== password) {
+        return res.status(401).json({ message: "Nombre de usuario o contraseña incorrectos" });
+    }
+
+    const jwt = require('jsonwebtoken');
+    const secretKey = "clave_secreta";
+
+    const token = jwt.sign({ username: username }, secretKey, { expiresIn: '1h' });
+
+    return res.status(200).json({ message: "Login exitoso", token: token });
 });
+
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
