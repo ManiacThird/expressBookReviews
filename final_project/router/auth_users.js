@@ -65,6 +65,34 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   });
 });
 
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const isbn = req.params.isbn;
+    const { username } = req.body; // el usuario que quiere borrar su reseña
+  
+    // Validación básica
+    if (!username) {
+      return res.status(400).json({ message: "Se requiere username" });
+    }
+  
+    const book = books[isbn];
+    if (!book) {
+      return res.status(404).json({ message: "Libro no encontrado" });
+    }
+  
+    if (!book.reviews || !book.reviews[username]) {
+      return res.status(404).json({ message: "No existe una reseña de este usuario para eliminar" });
+    }
+  
+    // Eliminar la reseña del usuario
+    delete book.reviews[username];
+  
+    return res.status(200).json({
+      message: "Reseña eliminada correctamente",
+      reviews: book.reviews
+    });
+  });
+  
+
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
